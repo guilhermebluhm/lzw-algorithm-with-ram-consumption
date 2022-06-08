@@ -1,4 +1,6 @@
 import com.sun.management.OperatingSystemMXBean;
+
+import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,6 +9,8 @@ import java.util.Map;
 
 public class compressao {
 
+    Map<String, Integer> TABLE_ENCODED_MESSAGE = new HashMap<>();
+    List<Integer> position_ocurrence_compress = new ArrayList<>();
     OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(
             OperatingSystemMXBean.class);
 
@@ -14,7 +18,7 @@ public class compressao {
         //gera o range de bits "default" para a ASCII
         //popula o dicionário com as respectivas entradas char + int
         int BIT_RANGE_DECODE = 255;
-        Map<String, Integer> TABLE_ENCODED_MESSAGE = new HashMap<>();
+
         for(int i = 0 ; i < BIT_RANGE_DECODE ; i+=1){
             TABLE_ENCODED_MESSAGE.put("" + (char) i, i);
         }
@@ -24,7 +28,7 @@ public class compressao {
         //a lista de entrada de correspondencia dicionário-codificação
         //para quando ocorrer o passo de decodificação se basear na correspodencia
         //caractere - valor
-        List<Integer> position_ocurrence_compress = new ArrayList<>();
+
         //inicio verificacao metricas
         long startPercCpuCost = osBean.getProcessCpuTime();
         long start = System.currentTimeMillis();
@@ -76,4 +80,14 @@ public class compressao {
         return position_ocurrence_compress;
     }
 
+    public void readFile(String fileName) throws FileNotFoundException, IOException {
+        File file = new File(fileName);
+        byte[] data;
+        try (FileInputStream fis = new FileInputStream(file)) {
+            data = new byte[(int) file.length()];
+            fis.read(data);
+        }
+        String text = new String(data, "UTF-8");
+        compressData(text);
+    }
 }
